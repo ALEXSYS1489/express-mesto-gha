@@ -44,6 +44,7 @@ const likeCard = async (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     );
+    res.send(req.params.cardId);
   } catch (err) {
     if (err.name === "CastError") {
       res.status(404).send({ message: "Карточка с указанным id не найдена" });
@@ -60,6 +61,7 @@ const dislikeCard = async (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     );
+    res.send(req.params.cardId);
   } catch (err) {
     if (err.name === "CastError") {
       res.status(404).send({ message: "Карточка с указанным id не найдена" });
@@ -68,5 +70,6 @@ const dislikeCard = async (req, res) => {
     }
   }
 };
+
 
 module.exports = { getCards, addCard, deleteCard, likeCard, dislikeCard };

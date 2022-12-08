@@ -5,7 +5,7 @@ const {getCards, addCard, deleteCard, likeCard, dislikeCard} = require('../contr
 cards.get('/', getCards)
 cards.post('/', express.json(), addCard)
 cards.delete('/:cardId', deleteCard)
-cards.put('/:cardId/likes', express.json(), likeCard)
-cards.delete('/:cardId/likes', express.json(), dislikeCard)
+cards.put('/:cardId/likes', likeCard)
+cards.delete('/:cardId/likes', dislikeCard)
 
 module.exports = cards

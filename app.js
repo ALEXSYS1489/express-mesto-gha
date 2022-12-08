@@ -7,7 +7,7 @@ const app = express();
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '63909a523dfdc093251d37f4' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '63909a523dfdc093251d37f4'
   };
 
   next();
@@ -18,8 +18,8 @@ app.use(routes)
 async function connect(){
 await mongoose.connect('mongodb://localhost:27017/mestodb', {});
 await app.listen(PORT)
-// Если всё работает, консоль покажет, какой порт приложение слушает
-console.log(` UUUU...MAAA  App listening on port ${PORT}`)
+
+console.log(`App listening on port ${PORT}`)
 }
 
 connect()
