@@ -26,10 +26,16 @@ const addCard = async (req, res) => {
 
 const deleteCard = async (req, res) => {
   try {
+
+    const card = await Card.findById(req.params.cardId)
+    if(!card) throw new Error('not found');
+
     await Card.findByIdAndRemove(req.params.cardId);
-    res.send(req.params.cardId);
+    res.send(card);
   } catch (err) {
     if (err.name === "CastError") {
+      res.status(400).send({ message: 'Не валидный id', ...err });
+    } else if (err.message === 'not found') {
       res.status(404).send({ message: "Карточка с указанным id не найдена" });
     } else {
       res.status(500).send({ message: "Ошибка на сервере" });
@@ -39,14 +45,20 @@ const deleteCard = async (req, res) => {
 
 const likeCard = async (req, res) => {
   try {
+
+    const card = await Card.findById(req.params.cardId)
+    if(!card) throw new Error('not found');
+
     await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true }
     );
-    res.send(req.params.cardId);
+    res.send(card);
   } catch (err) {
     if (err.name === "CastError") {
+      res.status(400).send({ message: 'Не валидный id', ...err });
+    } else if (err.message === 'not found') {
       res.status(404).send({ message: "Карточка с указанным id не найдена" });
     } else {
       res.status(500).send({ message: "Ошибка на сервере" });
@@ -56,14 +68,20 @@ const likeCard = async (req, res) => {
 
 const dislikeCard = async (req, res) => {
   try {
+
+    const card = await Card.findById(req.params.cardId)
+    if(!card) throw new Error('not found');
+
     await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true }
     );
-    res.send(req.params.cardId);
+    res.send(card);
   } catch (err) {
     if (err.name === "CastError") {
+      res.status(400).send({ message: 'Не валидный id', ...err });
+    } else if (err.message === 'not found') {
       res.status(404).send({ message: "Карточка с указанным id не найдена" });
     } else {
       res.status(500).send({ message: "Ошибка на сервере" });
