@@ -16,14 +16,14 @@ const getUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
 
-    if(!user) throw new Error('not found');
+    if (!user) throw new Error('not found');
 
     res.send(user);
   } catch (err) {
     if (err.name === 'CastError') {
       res
         .status(error400)
-        .send({message: 'Не валидный id'});
+        .send({ message: 'Не валидный id' });
     } else if (err.message === 'not found') {
       res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
     } else {
@@ -47,6 +47,9 @@ const addUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    const user = await User.findById(req.user._id);
+    if (!user) throw new Error('not found');
+
     const { name, about } = req.body;
     await User.findByIdAndUpdate(
       req.user._id,
@@ -55,9 +58,9 @@ const updateUser = async (req, res) => {
         new: true,
         runValidators: true,
         upsert: false,
-      }
-    ).then((user) => {
-      res.send(user);
+      },
+    ).then((data) => {
+      res.send(data);
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -66,6 +69,8 @@ const updateUser = async (req, res) => {
       res
         .status(error404)
         .send({ message: 'Не валидный id' });
+    } else if (err.message === 'not found') {
+      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
     } else {
       res.status(error500).send({ message: 'Ошибка на сервере' });
     }
@@ -74,6 +79,9 @@ const updateUser = async (req, res) => {
 
 const updateAvatar = async (req, res) => {
   try {
+    const user = await User.findById(req.user._id);
+    if (!user) throw new Error('not found');
+
     const { avatar } = req.body;
     await User.findByIdAndUpdate(
       req.user._id,
@@ -83,8 +91,8 @@ const updateAvatar = async (req, res) => {
         runValidators: true,
         upsert: false,
       },
-    ).then((user) => {
-      res.send(user);
+    ).then((data) => {
+      res.send(data);
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -93,6 +101,8 @@ const updateAvatar = async (req, res) => {
       res
         .status(error404)
         .send({ message: 'Не валидный id' });
+    } else if (err.message === 'not found') {
+      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
     } else {
       res.status(error500).send({ message: 'Ошибка на сервере' });
     }

@@ -4,18 +4,19 @@ const { error400, error404, error500 } = require('../constants');
 
 const getCards = async (req, res) => {
   try {
-    const cards = await Card.find({});
+    const cards = await Card.find({}).populate(['owner', 'likes']);
     res.send(cards);
-  } catch {
+  } catch (err) {
     res.status(error500).send({ massage: 'Ошибка на сервере' });
+    console.log(err);
   }
 };
 
 const addCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-    const owner = req.user._id;
-    const newCard = await new Card({ name, link, owner });
+    const owner = req.user._id
+    const newCard = await new Card({ name, link, owner }).populate('owner');
     res.send(await newCard.save());
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -46,7 +47,7 @@ const deleteCard = async (req, res) => {
 
 const likeCard = async (req, res) => {
   try {
-    const card = await Card.findById(req.params.cardId);
+    const card = await Card.findById(req.params.cardId).populate(['owner', 'likes']);
     if (!card) throw new Error('not found');
 
     await Card.findByIdAndUpdate(
@@ -68,7 +69,7 @@ const likeCard = async (req, res) => {
 
 const dislikeCard = async (req, res) => {
   try {
-    const card = await Card.findById(req.params.cardId);
+    const card = await Card.findById(req.params.cardId).populate(['owner', 'likes']);
     if (!card) throw new Error('not found');
 
     await Card.findByIdAndUpdate(
