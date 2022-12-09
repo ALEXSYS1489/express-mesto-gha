@@ -1,11 +1,13 @@
-const User = require("../models/user");
+/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/
+const User = require('../models/user');
+const { error400, error404, error500 } = require('../constants');
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.send(users);
   } catch {
-    res.status(500).send({ massage: "Ошибка на сервере" });
+    res.status(error500).send({ massage: 'Ошибка на сервере' });
   }
 };
 
@@ -18,14 +20,14 @@ const getUserById = async (req, res) => {
 
     res.send(user);
   } catch (err) {
-    if (err.name === "CastError") {
+    if (err.name === 'CastError') {
       res
-        .status(400)
-        .send({message: 'Не валидный id', ...err});
+        .status(error400)
+        .send({message: 'Не валидный id'});
     } else if (err.message === 'not found') {
-      res.status(404).send({ message: "Пользователь с указанным id не найден" });
+      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
@@ -35,10 +37,10 @@ const addUser = async (req, res) => {
     const newUser = await new User(req.body);
     res.send(await newUser.save());
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({ message: "Ошибка валидации полей", ...err });
+    if (err.name === 'ValidationError') {
+      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
@@ -48,7 +50,7 @@ const updateUser = async (req, res) => {
     const { name, about } = req.body;
     await User.findByIdAndUpdate(
       req.user._id,
-      { name: name, about: about },
+      { name, about },
       {
         new: true,
         runValidators: true,
@@ -58,14 +60,14 @@ const updateUser = async (req, res) => {
       res.send(user);
     });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({ message: "Ошибка валидации полей", ...err });
-    } else if (err.name === "CastError") {
+    if (err.name === 'ValidationError') {
+      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
+    } else if (err.name === 'CastError') {
       res
-        .status(404)
-        .send({ message: "Пользователь с указанным id не найден" });
+        .status(error404)
+        .send({ message: 'Не валидный id' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
@@ -75,27 +77,27 @@ const updateAvatar = async (req, res) => {
     const { avatar } = req.body;
     await User.findByIdAndUpdate(
       req.user._id,
-      { avatar: avatar },
+      { avatar },
       {
         new: true,
         runValidators: true,
         upsert: false,
-      }
+      },
     ).then((user) => {
       res.send(user);
-      console.log(123);
     });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({ message: "Ошибка валидации полей", ...err });
-    } else if (err.name === "CastError") {
+    if (err.name === 'ValidationError') {
+      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
+    } else if (err.name === 'CastError') {
       res
-        .status(404)
-        .send({ message: "Пользователь с указанным id не найден" });
+        .status(error404)
+        .send({ message: 'Не валидный id' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
 
 module.exports = { getUsers, getUserById, addUser, updateUser, updateAvatar };
+/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/

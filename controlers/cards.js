@@ -1,11 +1,13 @@
-const Card = require("../models/card");
+/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/
+const Card = require('../models/card');
+const { error400, error404, error500 } = require('../constants');
 
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
     res.send(cards);
   } catch {
-    res.status(500).send({ massage: "Ошибка на сервере" });
+    res.status(error500).send({ massage: 'Ошибка на сервере' });
   }
 };
 
@@ -16,38 +18,36 @@ const addCard = async (req, res) => {
     const newCard = await new Card({ name, link, owner });
     res.send(await newCard.save());
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({ message: "Ошибка валидации полей", ...err });
+    if (err.name === 'ValidationError') {
+      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
 
 const deleteCard = async (req, res) => {
   try {
-
-    const card = await Card.findById(req.params.cardId)
-    if(!card) throw new Error('not found');
+    const card = await Card.findById(req.params.cardId);
+    if (!card) throw new Error('not found');
 
     await Card.findByIdAndRemove(req.params.cardId);
     res.send(card);
   } catch (err) {
-    if (err.name === "CastError") {
-      res.status(400).send({ message: 'Не валидный id', ...err });
+    if (err.name === 'CastError') {
+      res.status(error400).send({ message: 'Не валидный id', ...err });
     } else if (err.message === 'not found') {
-      res.status(404).send({ message: "Карточка с указанным id не найдена" });
+      res.status(error404).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
 
 const likeCard = async (req, res) => {
   try {
-
-    const card = await Card.findById(req.params.cardId)
-    if(!card) throw new Error('not found');
+    const card = await Card.findById(req.params.cardId);
+    if (!card) throw new Error('not found');
 
     await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -56,38 +56,37 @@ const likeCard = async (req, res) => {
     );
     res.send(card);
   } catch (err) {
-    if (err.name === "CastError") {
-      res.status(400).send({ message: 'Не валидный id', ...err });
+    if (err.name === 'CastError') {
+      res.status(error400).send({ message: 'Не валидный id', ...err });
     } else if (err.message === 'not found') {
-      res.status(404).send({ message: "Карточка с указанным id не найдена" });
+      res.status(error404).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
 
 const dislikeCard = async (req, res) => {
   try {
-
-    const card = await Card.findById(req.params.cardId)
-    if(!card) throw new Error('not found');
+    const card = await Card.findById(req.params.cardId);
+    if (!card) throw new Error('not found');
 
     await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     res.send(card);
   } catch (err) {
-    if (err.name === "CastError") {
-      res.status(400).send({ message: 'Не валидный id', ...err });
+    if (err.name === 'CastError') {
+      res.status(error400).send({ message: 'Не валидный id', ...err });
     } else if (err.message === 'not found') {
-      res.status(404).send({ message: "Карточка с указанным id не найдена" });
+      res.status(error404).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(500).send({ message: "Ошибка на сервере" });
+      res.status(error500).send({ message: 'Ошибка на сервере' });
     }
   }
 };
 
-
 module.exports = { getCards, addCard, deleteCard, likeCard, dislikeCard };
+/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/
