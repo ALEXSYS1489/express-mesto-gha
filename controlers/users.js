@@ -106,4 +106,6 @@ const updateAvatar = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, getUserById, addUser, updateUser, updateAvatar };
+module.exports = {
+  getUsers, getUserById, addUser, updateUser, updateAvatar,
+};
