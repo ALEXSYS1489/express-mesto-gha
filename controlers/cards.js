@@ -1,4 +1,3 @@
-/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/
 const Card = require('../models/card');
 const { error400, error404, error500 } = require('../constants');
 
@@ -8,14 +7,13 @@ const getCards = async (req, res) => {
     res.send(cards);
   } catch (err) {
     res.status(error500).send({ massage: 'Ошибка на сервере' });
-    console.log(err);
   }
 };
 
 const addCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-    const owner = req.user._id
+    const owner = req.user._id;
     const newCard = await new Card({ name, link, owner }).populate('owner');
     res.send(await newCard.save());
   } catch (err) {
@@ -53,7 +51,7 @@ const likeCard = async (req, res) => {
     await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     res.send(card);
   } catch (err) {
@@ -90,4 +88,3 @@ const dislikeCard = async (req, res) => {
 };
 
 module.exports = { getCards, addCard, deleteCard, likeCard, dislikeCard };
-/*eslint no-underscore-dangle: ["error", { "allow": ["_id"] }]*/

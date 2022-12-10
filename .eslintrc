@@ -1,3 +1,11 @@
 {
-    "extends": "airbnb-base"
-  }
+  "extends": "airbnb-base",
+  "overrides": [
+    {
+      "files": ["cards.js", "users.js"],
+      "rules": {
+        "no-underscore-dangle": "off"
+      }
+     }
+  ]
+}
