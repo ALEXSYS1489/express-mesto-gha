@@ -50,7 +50,7 @@ const updateUser = async (req, res) => {
     if (!user) throw new Error('not found');
 
     const { name, about } = req.body;
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
       {
@@ -58,9 +58,9 @@ const updateUser = async (req, res) => {
         runValidators: true,
         upsert: false,
       },
-    ).then((data) => {
-      res.send(data);
-    });
+    );
+    const newUser = await User.findById(req.user._id);
+    res.send(newUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
@@ -82,7 +82,7 @@ const updateAvatar = async (req, res) => {
     if (!user) throw new Error('not found');
 
     const { avatar } = req.body;
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
       {
@@ -90,9 +90,9 @@ const updateAvatar = async (req, res) => {
         runValidators: true,
         upsert: false,
       },
-    ).then((data) => {
-      res.send(data);
-    });
+    );
+    const newUser = await User.findById(req.user._id);
+    res.send(newUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
