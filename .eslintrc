@@ -1,11 +1,7 @@
 {
   "extends": "airbnb-base",
-  "overrides": [
-    {
-      "files": ["cards.js", "users.js"],
-      "rules": {
-        "no-underscore-dangle": "off"
-      }
-     }
-  ]
+  "rules": {
+    "no-underscore-dangle": ["error", {"allow": ["_id"]}],
+    "linebreak-style": 0
+  }
 }

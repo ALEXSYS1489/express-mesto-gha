@@ -50,7 +50,7 @@ const updateUser = async (req, res) => {
     if (!user) throw new Error('not found');
 
     const { name, about } = req.body;
-    await User.findByIdAndUpdate(
+    const newUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
       {
@@ -59,7 +59,6 @@ const updateUser = async (req, res) => {
         upsert: false,
       },
     );
-    const newUser = await User.findById(req.user._id);
     res.send(newUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -82,7 +81,7 @@ const updateAvatar = async (req, res) => {
     if (!user) throw new Error('not found');
 
     const { avatar } = req.body;
-    await User.findByIdAndUpdate(
+    const newUser = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
       {
@@ -91,7 +90,6 @@ const updateAvatar = async (req, res) => {
         upsert: false,
       },
     );
-    const newUser = await User.findById(req.user._id);
     res.send(newUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
