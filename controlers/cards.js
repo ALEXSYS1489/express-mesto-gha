@@ -13,7 +13,7 @@ const getCards = async (req, res, next) => {
 };
 
 const addCard = async (req, res, next) => {
-  try {console.log(req.query);
+  try {
     const { name, link } = req.body;
     const owner = req.user._id;
     const newCard = await new Card({ name, link, owner }).populate('owner');
@@ -41,12 +41,12 @@ const likeCard = async (req, res, next) => {
     const card = await Card.findById(req.params.cardId).populate(['owner', 'likes']);
     if (!card) throw new Error404('Карточка с указанным id не найдена');
 
-    await Card.findByIdAndUpdate(
+    const updetedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
     );
-    res.send(card);
+    res.send(updetedCard);
   } catch (err) {
     next(err);
   }
@@ -57,12 +57,12 @@ const dislikeCard = async (req, res, next) => {
     const card = await Card.findById(req.params.cardId).populate(['owner', 'likes']);
     if (!card) throw new Error404('Карточка с указанным id не найдена');
 
-    await Card.findByIdAndUpdate(
+    const updetedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
     );
-    res.send(card);
+    res.send(updetedCard);
   } catch (err) {
     next(err);
   }

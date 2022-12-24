@@ -14,7 +14,7 @@ cards.get('/', celebrate({
 
 cards.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
+    name: Joi.string().required(),
     link: Joi.string().required(),
   }).unknown(true),
   headers: Joi.object().keys({
@@ -42,7 +42,7 @@ cards.put('/:cardId/likes', celebrate({
 
 cards.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24),
+    cardId: Joi.string().alphanum(),
   }),
   headers: Joi.object().keys({
     Authorization: Joi.string(),

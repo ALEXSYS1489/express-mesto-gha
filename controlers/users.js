@@ -39,7 +39,7 @@ const addUser = async (req, res, next) => {
       name, about, avatar, email, password: hash,
     });
     res.send({
-      name, about, avatar, email,
+      name, about, avatar, email, id: newUser._id,
     });
   } catch (err) {
     next(err);
@@ -98,7 +98,7 @@ const login = async (req, res, next) => {
     if (!matched) throw new Error401('Неправильные почта или пароль');
 
     const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-    res.send(token);
+    res.send({ token });
   } catch (err) {
     next(err);
   }
