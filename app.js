@@ -1,20 +1,55 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes/index');
+const { addUser, login } = require('./controlers/users');
+const { errors, celebrate, Joi } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63909a523dfdc093251d37f4',
-  };
+app.use(express.json());
 
-  next();
-});
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }).unknown(true),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string(),
+  }).unknown(true),
+}), addUser);
 
 app.use(routes);
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  if (err.name === 'CastError') {
+    res.status(400).send({ message: 'Не валидный id' });
+  } else if (err.name === 'ValidationError') {
+    res.status(400).send({ message: 'Ошибка валидации полей', ...err });
+  } else if (err.code === 11000) {
+    res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+  } else {
+    res
+      .status(statusCode)
+      .send({
+        message: statusCode === 500
+          ? 'На сервере произошла ошибка'
+          : message,
+      });
+  }
+});
 
 async function connect() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {});

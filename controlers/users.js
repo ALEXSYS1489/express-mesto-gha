@@ -1,53 +1,55 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { error400, error404, error500 } = require('../constants');
 
-const getUsers = async (req, res) => {
+const Error401 = require('../errors/error401');
+const Error404 = require('../errors/error404');
+
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.send(users);
   } catch (err) {
-    res.status(error500).send({ massage: 'Ошибка на сервере' });
+    next(err);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
 
-    if (!user) throw new Error('not found');
+    if (!user) throw new Error404('Пользователь с указанным id не найден');
 
     res.send(user);
   } catch (err) {
-    if (err.name === 'CastError') {
-      res
-        .status(error400)
-        .send({ message: 'Не валидный id' });
-    } else if (err.message === 'not found') {
-      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
-    } else {
-      res.status(error500).send({ message: 'Ошибка на сервере' });
-    }
+    next(err);
   }
 };
 
-const addUser = async (req, res) => {
+const addUser = async (req, res, next) => {
   try {
-    const newUser = await new User(req.body);
-    res.send(await newUser.save());
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
+      name, about, avatar, email, password: hash,
+    });
+    res.send({
+      name, about, avatar, email,
+    });
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
-    } else {
-      res.status(error500).send({ message: 'Ошибка на сервере' });
-    }
+    next(err);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-    if (!user) throw new Error('not found');
+    if (!user) throw new Error404('Пользователь с указанным id не найден');
 
     const { name, about } = req.body;
     const newUser = await User.findByIdAndUpdate(
@@ -61,24 +63,14 @@ const updateUser = async (req, res) => {
     );
     res.send(newUser);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
-    } else if (err.name === 'CastError') {
-      res
-        .status(error404)
-        .send({ message: 'Не валидный id' });
-    } else if (err.message === 'not found') {
-      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
-    } else {
-      res.status(error500).send({ message: 'Ошибка на сервере' });
-    }
+    next(err);
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-    if (!user) throw new Error('not found');
+    if (!user) throw new Error404('Пользователь с указанным id не найден');
 
     const { avatar } = req.body;
     const newUser = await User.findByIdAndUpdate(
@@ -92,20 +84,39 @@ const updateAvatar = async (req, res) => {
     );
     res.send(newUser);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(error400).send({ message: 'Ошибка валидации полей', ...err });
-    } else if (err.name === 'CastError') {
-      res
-        .status(error404)
-        .send({ message: 'Не валидный id' });
-    } else if (err.message === 'not found') {
-      res.status(error404).send({ message: 'Пользователь с указанным id не найден' });
-    } else {
-      res.status(error500).send({ message: 'Ошибка на сервере' });
-    }
+    next(err);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) throw new Error401('Неправильные почта или пароль');
+
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) throw new Error401('Неправильные почта или пароль');
+
+    const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+    res.send(token);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUserMe = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) throw new Error404('Пользователь с указанным id не найден');
+
+    res.send(user);
+  } catch (err) {
+    next(err);
   }
 };
 
 module.exports = {
-  getUsers, getUserById, addUser, updateUser, updateAvatar,
+  getUsers, getUserById, addUser, updateUser, updateAvatar, login, getUserMe,
 };
