@@ -4,7 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const users = express.Router();
 const {
   getUsers, getUserById, updateUser, updateAvatar, getUserMe,
-} = require('../controlers/users');
+} = require('../controllers/users');
 
 users.get('/', celebrate({
   headers: Joi.object().keys({
@@ -20,7 +20,7 @@ users.get('/me', celebrate({
 
 users.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum(),
+    userId: Joi.string().alphanum().length(24),
   }).unknown(true),
   headers: Joi.object().keys({
     Authorization: Joi.string(),
@@ -29,8 +29,8 @@ users.get('/:userId', celebrate({
 
 users.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required(),
-    about: Joi.string().required(),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
   }).unknown(true),
   headers: Joi.object().keys({
     Authorization: Joi.string(),
@@ -39,7 +39,12 @@ users.patch('/me', celebrate({
 
 users.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().custom((value, helpers) => {
+      if (/http[s]?:\/\/w?w?w?\.?[a-z\d-.]+\.[a-z]+[\w\-.+)(^\][~:/?#@!$&'*,;=]+[#]?/.test(value)) {
+        return value;
+      }
+      return helpers.message('Не корректная ссылка на аватар');
+    }),
   }).unknown(true),
   headers: Joi.object().keys({
     Authorization: Joi.string(),

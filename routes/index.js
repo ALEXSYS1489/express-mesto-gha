@@ -3,13 +3,16 @@ const users = require('./users');
 const cards = require('./cards');
 const { error404 } = require('../constants');
 const auth = require('../middlewares/auth');
+const Error404 = require('../errors/error404');
 
 const routes = express.Router();
 
 routes.use('/users', auth, users);
 routes.use('/cards', auth, cards);
-routes.use('/*', (req, res) => {
-  res.status(error404).send({ message: 'Страница не найдена' });
+routes.use('/*', async (req, res, next) => {
+  try {
+    throw new Error404('Страница не найдена');
+  } catch (err) { next(err); }
 });
 
 module.exports = routes;
