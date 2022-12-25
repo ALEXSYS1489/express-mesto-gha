@@ -1,7 +1,6 @@
 const express = require('express');
 const users = require('./users');
 const cards = require('./cards');
-const { error404 } = require('../constants');
 const auth = require('../middlewares/auth');
 const Error404 = require('../errors/error404');
 
